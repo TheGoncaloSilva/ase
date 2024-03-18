@@ -6,7 +6,7 @@
 #define LOG_TAG "MAIN"
 
 // Program defines
-#define LED_GPIO 9
+#define LED_GPIO 7
 #define BUTTON_GPIO 6
 
 // Program Global variables
@@ -30,7 +30,7 @@ void app_main(void)
     while (true)
     {
         loop();
-        vTaskDelay(110 / portTICK_PERIOD_MS); // 100ms delay
+        vTaskDelay(150 / portTICK_PERIOD_MS); // 100ms delay
     }
 
 }
