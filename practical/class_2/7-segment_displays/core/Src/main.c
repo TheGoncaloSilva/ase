@@ -5,51 +5,6 @@
 #include "esp_log.h"
 #define LOG_TAG "MAIN"
 
-// Pin definitions for 7-segment display
-#define PIN_A GPIO_NUM_1
-#define PIN_B GPIO_NUM_0
-#define PIN_C GPIO_NUM_6
-#define PIN_D GPIO_NUM_7
-#define PIN_E GPIO_NUM_8
-#define PIN_F GPIO_NUM_3
-#define PIN_G GPIO_NUM_2
-#define PIN_DP GPIO_NUM_5
-
-// Pins for MOSFET control
-#define PIN_MOSFET_DSP_1 GPIO_NUM_10
-#define PIN_MOSFET_DSP_2 GPIO_NUM_4
-
-#define MAX_COUNTER_VALUE 256;
-
-// Function Definitions
-esp_err_t setup(void);
-void displayDigit(uint8_t digit, gpio_num_t mosfetPin);
-void incrementCounterTask(void *pvParameters);
-void refreshDisplayTask(void *pvParameters);
-
-// Define 7-segment display combinations to represent values
-const uint8_t digitMap[16] = {
-  0b11111100,  // 0
-  0b01100000,  // 1
-  0b11011010,  // 2
-  0b11110010,  // 3
-  0b01100110,  // 4
-  0b10110110,  // 5
-  0b10111110,  // 6
-  0b11100000,  // 7
-  0b11111110,  // 8
-  0b11110110,  // 9
-  0b11101110,  // A
-  0b00111110,  // B
-  0b10011100,  // C
-  0b01111010,  // D
-  0b10011110,  // E
-  0b10001110   // F
-};
-
-// Global counter variable
-volatile char counter = 0;
-
 // Function to display a digit on a 7-segment display
 void displayDigit(uint8_t digit, gpio_num_t mosfetPin) {
   gpio_set_level(PIN_MOSFET_DSP_1, mosfetPin == PIN_MOSFET_DSP_1 ? 1 : 0);
@@ -109,7 +64,6 @@ void incrementCounterTask(void *pvParameters) {
 // Function to refresh display
 void refreshDisplayTask(void *pvParameters) {
     while(1) {
-        // Call your display function here
         displayDigit(counter % 16, PIN_MOSFET_DSP_2);
         vTaskDelay(pdMS_TO_TICKS(10)); // Delay for 10ms (100Hz)
         displayDigit((counter >> 4) % 16, PIN_MOSFET_DSP_1);
