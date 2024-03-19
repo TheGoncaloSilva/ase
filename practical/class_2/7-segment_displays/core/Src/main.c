@@ -63,10 +63,14 @@ void incrementCounterTask(void *pvParameters) {
 
 // Function to refresh display
 void refreshDisplayTask(void *pvParameters) {
+    static int displayFlag = 0;
     while(1) {
-        displayDigit(counter % 16, PIN_MOSFET_DSP_2);
-        vTaskDelay(pdMS_TO_TICKS(10)); // Delay for 10ms (100Hz)
-        displayDigit((counter >> 4) % 16, PIN_MOSFET_DSP_1);
+        if(displayFlag == 0)
+            displayDigit(counter % 16, PIN_MOSFET_DSP_2);
+        else
+            displayDigit((counter >> 4) % 16, PIN_MOSFET_DSP_1);
+            
+        displayFlag = !displayFlag;
         vTaskDelay(pdMS_TO_TICKS(10)); // Delay for 10ms (100Hz)
     }
 }
