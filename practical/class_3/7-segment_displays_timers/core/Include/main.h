@@ -6,6 +6,7 @@
 
 #include "esp_event.h"
 #include "nvs_flash.h"
+#include "esp_timer.h"
 
 #include "Gpio.h"
 
@@ -41,8 +42,8 @@
 // Function Definitions
 esp_err_t setup(void);
 void displayDigit(uint8_t digit, gpio_num_t mosfetPin);
-void incrementCounterTask(void *pvParameters);
-void refreshDisplayTask(void *pvParameters);
+void incrementCounterTimerCallback(void* arg);
+void refreshDisplayTimerCallback(void* arg);
 
 /*
     ##########################################################################
@@ -64,13 +65,10 @@ const uint8_t digitMap[16] = {
     0b01111111,  // 8
     0b01101111,  // 9
     0b01110111,  // A
-    0b01111100,  // B
+    0b01111100,  // b
     0b00001111,  // C
     0b01011110,  // D
     0b01111001,  // E
     0b01110001   // F
 
 };
-
-// Global counter variable
-volatile char counter = 0;
