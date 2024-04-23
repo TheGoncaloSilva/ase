@@ -11,8 +11,8 @@
 #include "esp_err.h"
 #include "driver/i2c_master.h"
 
-#define SDA_PIN 4
-#define SCL_PIN 10
+#define SDA_PIN 0
+#define SCL_PIN 1
 #define DEVICE_ADDRESS 0x49
 
 void app_main(void)
@@ -44,4 +44,26 @@ void app_main(void)
         ESP_ERROR_CHECK(i2c_master_transmit(i2cDevHandle, buffer, sizeof(buffer), -1));
         vTaskDelay(10);
     }
+
+    /*
+    while (1)
+    {
+        uint8_t buffer[2] = {0x01, 0x00};
+        ESP_ERROR_CHECK(i2c_master_transmit(i2cDevHandle, buffer, sizeof(buffer), -1));
+        vTaskDelay(10);
+    }
+
+    uint8_t buffer[2] = {0x01, 0x00};
+    ESP_ERROR_CHECK(i2c_master_transmit(i2cDevHandle, buffer, sizeof(buffer), -1));
+ 
+    while(1)
+    {
+        uint8_t txBuf[1] = {0x00};
+        uint8_t rxBuf[1];
+    
+        ESP_ERROR_CHECK(i2c_master_transmit_receive(i2cDevHandle, txBuf, sizeof(txBuf),
+                                                                rxBuf, sizeof(rxBuf), -1));
+        vTaskDelay(10);
+    }
+    */
 }
