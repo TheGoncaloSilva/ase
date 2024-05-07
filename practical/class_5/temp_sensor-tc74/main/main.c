@@ -1,9 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2010-2022 Espressif Systems (Shanghai) CO LTD
- *
- * SPDX-License-Identifier: CC0-1.0
- */
-
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -38,32 +32,36 @@ void app_main(void)
     i2c_master_dev_handle_t i2cDevHandle;
     ESP_ERROR_CHECK(i2c_master_bus_add_device(i2cBusHandle, &i2cDevCfg, &i2cDevHandle));
 
+    /*
     while(1){
-        uint8_t buffer[2] = {0x01, 0x80};
+        uint8_t buffer[2] = {0x01, 0x80}; // standby
 
         ESP_ERROR_CHECK(i2c_master_transmit(i2cDevHandle, buffer, sizeof(buffer), -1));
         vTaskDelay(10);
     }
 
-    /*
+    
     while (1)
     {
-        uint8_t buffer[2] = {0x01, 0x00};
+        uint8_t buffer[2] = {0x01, 0x00}; // wake up
         ESP_ERROR_CHECK(i2c_master_transmit(i2cDevHandle, buffer, sizeof(buffer), -1));
         vTaskDelay(10);
     }
+    */
 
-    uint8_t buffer[2] = {0x01, 0x00};
+    uint8_t buffer[2] = {0x01, 0x00}; // wake up
     ESP_ERROR_CHECK(i2c_master_transmit(i2cDevHandle, buffer, sizeof(buffer), -1));
  
+    printf("Wake up completed");
+    
     while(1)
     {
-        uint8_t txBuf[1] = {0x00};
+        uint8_t txBuf[1] = {0x00}; // read after register
         uint8_t rxBuf[1];
     
         ESP_ERROR_CHECK(i2c_master_transmit_receive(i2cDevHandle, txBuf, sizeof(txBuf),
                                                                 rxBuf, sizeof(rxBuf), -1));
         vTaskDelay(10);
     }
-    */
+    
 }
