@@ -13,7 +13,7 @@ esp_err_t tc74_init(i2c_master_bus_handle_t* pBusHandle,
         .flags.enable_internal_pullup = true,
     };
 
-    esp_err_t ret = i2c_new_master_bus(&i2cMasterCfg, &pBusHandle);
+    esp_err_t ret = i2c_new_master_bus(&i2cMasterCfg, pBusHandle);
     if (ret != ESP_OK)
         return ret;
     
@@ -23,7 +23,7 @@ esp_err_t tc74_init(i2c_master_bus_handle_t* pBusHandle,
         .scl_speed_hz = clkSpeedHz,
     };
 
-    return i2c_master_bus_add_device(pBusHandle, &i2cDevCfg, &pSensorHandle);
+    return i2c_master_bus_add_device(*pBusHandle, &i2cDevCfg, pSensorHandle);
 }
 
 esp_err_t tc74_free(i2c_master_bus_handle_t busHandle,
@@ -32,7 +32,7 @@ esp_err_t tc74_free(i2c_master_bus_handle_t busHandle,
     if (ret != ESP_OK)
         return ret;
 
-    return i2c_master_bus_remove_device(busHandle, sensorHandle);
+    return i2c_master_bus_rm_device(sensorHandle);
 }
 
 esp_err_t tc74_standy(i2c_master_dev_handle_t sensorHandle){
