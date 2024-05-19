@@ -25,8 +25,8 @@
 */
 
 // Pin definitions for 7-segment display
-#define PIN_A GPIO_NUM_1
-#define PIN_B GPIO_NUM_0
+#define PIN_A GPIO_NUM_5
+#define PIN_B GPIO_NUM_4
 #define PIN_C GPIO_NUM_6
 #define PIN_D GPIO_NUM_7
 #define PIN_E GPIO_NUM_8
@@ -34,13 +34,11 @@
 #define PIN_G GPIO_NUM_2
 
 // Pins for MOSFET control
-#define PIN_MOSFET_DSP_1 GPIO_NUM_10
-#define PIN_MOSFET_DSP_2 GPIO_NUM_4
-#define PIN_MOSFET_DSP_3 GPIO_NUM_5
+#define PIN_MOSFET_DSP GPIO_NUM_0
 
 // SPI configurations
-#define SDA_PIN 0
-#define SCL_PIN 1
+#define SDA_PIN GPIO_NUM_1
+#define SCL_PIN GPIO_NUM_10
 #define DEVICE_ADDRESS 0x49
 #define SCL_CLK_SPEED 50000
 #define TERMINAL_REFRESH_PERIOD_MS 100000   // 100 ms
@@ -85,9 +83,10 @@ uint8_t pTemp;
     ############               Function Definitions               ############
     ##########################################################################
 */
+esp_err_t setup(void);
 static void terminal_temp_callback(void* arg);
 void refresh_display_timer_callback(void* arg);
-void display_Digit(uint8_t digit, gpio_num_t mosfetPin);
+void display_Digit(uint8_t digit, int mosfetVal);
 
 
 /*
@@ -98,6 +97,8 @@ void display_Digit(uint8_t digit, gpio_num_t mosfetPin);
 void app_main(void)
 {
     printf("Hello world!\n");
+
+    ESP_ERROR_CHECK(setup());
 
     i2c_master_bus_handle_t i2cBusHandle;
     tc74_init(&i2cBusHandle, &i2cDevHandle, DEVICE_ADDRESS, SDA_PIN, SCL_PIN, SCL_CLK_SPEED);
@@ -150,17 +151,16 @@ static void terminal_temp_callback(void* arg)
 void refresh_display_timer_callback(void* arg) {
     static int displayFlag = 0;
     if(displayFlag == 0)
-        display_Digit(pTemp % 16, PIN_MOSFET_DSP_2);
+        display_Digit(pTemp % 16, 1);
     else
-        display_Digit((pTemp >> 4) % 16, PIN_MOSFET_DSP_1);
+        display_Digit((pTemp >> 4) % 16, 0);
         
     displayFlag = !displayFlag;
 }
 
 // Function to display a digit on a 7-segment display
-void display_Digit(uint8_t digit, gpio_num_t mosfetPin) {
-  gpio_set_level(PIN_MOSFET_DSP_1, mosfetPin == PIN_MOSFET_DSP_1 ? 1 : 0);
-  gpio_set_level(PIN_MOSFET_DSP_2, mosfetPin == PIN_MOSFET_DSP_2 ? 1 : 0);
+void display_Digit(uint8_t digit, int mosfetVal) {
+  gpio_set_level(PIN_MOSFET_DSP, mosfetVal);
 
   gpio_set_level(PIN_A, digitMap[digit] & (1 << 0));
   gpio_set_level(PIN_B, digitMap[digit] & (1 << 1));
@@ -169,4 +169,29 @@ void display_Digit(uint8_t digit, gpio_num_t mosfetPin) {
   gpio_set_level(PIN_E, digitMap[digit] & (1 << 4));
   gpio_set_level(PIN_F, digitMap[digit] & (1 << 5));
   gpio_set_level(PIN_G, digitMap[digit] & (1 << 6));
+}
+
+esp_err_t setup(void)
+{
+    esp_err_t status = ESP_OK;
+
+    printf("Setup!\n");
+
+    // Configure GPIO pins
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_conf.pin_bit_mask = (1ULL << PIN_A) |
+                            (1ULL << PIN_B) |
+                            (1ULL << PIN_C) |
+                            (1ULL << PIN_D) |
+                            (1ULL << PIN_E) |
+                            (1ULL << PIN_F) |
+                            (1ULL << PIN_G) |
+                            (1ULL << PIN_MOSFET_DSP);
+    status |= gpio_config(&io_conf);
+
+    return status;
 }
