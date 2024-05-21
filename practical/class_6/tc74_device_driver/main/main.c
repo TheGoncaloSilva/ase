@@ -130,7 +130,7 @@ void app_main(void)
     tc74_wakeup_and_read_temp(i2cDevHandle, &pTemp);
     while(1){
         tc74_read_temp_after_temp(i2cDevHandle, &pTemp);
-        vTaskDelay(10);
+        vTaskDelay(1000);
     }
 
     tc74_free(i2cBusHandle, i2cDevHandle);
@@ -151,9 +151,9 @@ static void terminal_temp_callback(void* arg)
 void refresh_display_timer_callback(void* arg) {
     static int displayFlag = 0;
     if(displayFlag == 0)
-        display_Digit(pTemp % 16, 1);
+        display_Digit(pTemp / 10, 0);
     else
-        display_Digit((pTemp >> 4) % 16, 0);
+        display_Digit(pTemp % 10, 1);
         
     displayFlag = !displayFlag;
 }
